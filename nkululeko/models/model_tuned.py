@@ -131,9 +131,9 @@ class TunedModel(BaseModel):
                     "Label encoder is missing. Initialization cannot proceed. Ensure data loading is correctly configured."
                 )
             mapping = dict(zip(le.classes_, range(len(le.classes_))))
-            target_mapping = {k: int(v) for k, v in mapping.items()}
+            target_mapping = {str(k): int(v) for k, v in mapping.items()}
             target_mapping_reverse = {
-                value: key for key, value in target_mapping.items()
+                str(value): key for key, value in target_mapping.items()
             }
             self.config = transformers.AutoConfig.from_pretrained(
                 pretrained_model,
