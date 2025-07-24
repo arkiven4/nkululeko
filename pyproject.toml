@@ -55,6 +55,8 @@ dependencies = [
     "umap-learn>=0.5.0",
     "xgboost>=1.0.0",
     "pylatex>=1.0.0",
+    "accelerate>=1.8.1",
+    "ipykernel>=6.29.5",
 ]
 
 [project.optional-dependencies]
