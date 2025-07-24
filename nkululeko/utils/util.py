@@ -189,8 +189,11 @@ class Util:
 
     def is_categorical(self, pd_series):
         """Check if a dataframe column is categorical."""
-        return pd_series.dtype.name == "object" or isinstance(
-            pd_series.dtype, pd.CategoricalDtype
+        return (
+            pd_series.dtype.name == "object"
+            or pd_series.dtype.name == "bool"
+            or isinstance(pd_series.dtype, pd.CategoricalDtype)
+            or isinstance(pd_series.dtype, pd.BooleanDtype)
         )
 
     def get_name(self):
@@ -280,9 +283,14 @@ class Util:
         layer_s = self.config_val("MODEL", "layers", False)
         if layer_s:
             layers = ast.literal_eval(layer_s)
+            if type(layers) is list:
+                layers_list = layers.copy()
+                # construct a dict with layer names
+                keys = [str(i) for i in range(len(layers_list))]
+                layers = dict(zip(keys, layers_list))
             sorted_layers = sorted(layers.items(), key=lambda x: x[1])
-            for l in sorted_layers:
-                layer_string += f"{str(l[1])}-"
+            for layer in sorted_layers:
+                layer_string += f"{str(layer[1])}-"
         return_string = f"{mt}_{ft}{layer_string[:-1]}"
         options = [
             ["MODEL", "C_val"],
@@ -536,4 +544,3 @@ class Util:
         """
         with open(file, "r") as fp:
             return json.load(fp)
-

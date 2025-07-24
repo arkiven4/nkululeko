@@ -222,13 +222,19 @@
       * "wav2vec2-large-robust-ft-swbd-300h"
       * **wav2vec2.model** = *path to the wav2vec2 model folder*
       * **wav2vec2.layer** = *which last hidden layer to use*
+    * **bert variants**: [Bert embeddings](https://huggingface.co/transformers/v3.0.2/model_doc/bert.html#bertmodel)
+      * **bert.model** = *path to the bert model folder (without the google-bert/)*
+      * **bert.layer** = *which last hidden layer to use*
     * **Hubert variants**: [facebook Hubert models](https://ai.meta.com/blog/hubert-self-supervised-representation-learning-for-speech-recognition-generation-and-compression/)
       * "hubert-base-ls960", "hubert-large-ll60k", "hubert-large-ls960-ft", hubert-xlarge-ll60k, "hubert-xlarge-ls960-ft"
     * **WavLM**:
       * "wavlm-base", "wavlm-base-plus", "wavlm-large"
     * **Whisper**: [whisper models](https://huggingface.co/models?other=whisper)
       * "whisper-base", "whisper-large", "whisper-medium", "whisper-tiny"
-    * **audmodel**: [audEERING emotion model embeddings](https://arxiv.org/abs/2203.07378), wav2vec2.0 model finetuned on [MSPPodcast](https://ecs.utdallas.edu/research/researchlabs/msp-lab/MSP-Podcast.html) emotions, embeddings
+    * **audmodel**: generic [audmodel format model](https://audeering.github.io/audmodel/index.html) import
+      * **audmodel.id** = audmodel id 
+      * **audmodel.embeddings_name** = hidden_states
+    * **audwav2vec2**: [audEERING emotion model embeddings](https://arxiv.org/abs/2203.07378), wav2vec2.0 model finetuned on [MSPPodcast](https://ecs.utdallas.edu/research/researchlabs/msp-lab/MSP-Podcast.html) emotions, embeddings
       * **aud.model** = ./audmodel/ (*path to the audEERING model folder*)
     * **auddim**: [audEERING emotion model dimensions](https://arxiv.org/abs/2203.07378), wav2vec2.0 model finetuned on [MSPPodcast](https://ecs.utdallas.edu/research/researchlabs/msp-lab/MSP-Podcast.html) arousal, dominance, valence
     * **agender**: [audEERING age and gender model embeddings](https://arxiv.org/abs/2306.16962), wav2vec2.0 model finetuned on [several age databases](https://github.com/audeering/w2v2-age-gender-how-to), embeddings
@@ -323,7 +329,7 @@ Model and training specifications. In general, default values should work for cl
     * **mse**: Mean squared error (for regression)
     * **mae**: Mean absolute error (for regression)
 * **layers**: specify the layer architecture for MLP
-  * layers = {'l1':64, 'l2':16}
+  * layers = [64, 16]
 * **C_val**: regularization value for SVM
   * C_val = 1.0
 * **gamma**: gamma value for SVM (kernel coefficient)  
@@ -625,9 +631,11 @@ metric = uar
 ### [PREDICT](#predict)
 
 * **targets**: Speaker/speech characteristics to be predicted by some models
-  * targets = ['text', 'speaker', 'gender', 'age', 'snr', 'arousal', 'valence', 'dominance', 'pesq', 'mos']
+  * targets = ['text', 'translation', 'speaker', 'gender', 'age', 'snr', 'arousal', 'valence', 'dominance', 'pesq', 'mos']
 * **sample_selection**: which split: [train, test, all]
   * sample_selection = all
+* **target_language**: target language for the translation prediction
+  * target_language = en
 
 ### EXPORT
 

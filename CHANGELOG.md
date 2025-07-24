@@ -1,6 +1,43 @@
 Changelog
 =========
 
+Version 0.96.5 (25-07-23)
+--------------------------
+* change layers specification
+* rename audmodel to audwav2vec2
+* add audmodel import
+
+Version 0.96.4 (25-07-22)
+--------------------------
+* add percentage to confusion matrices
+
+Version 0.96.3 (25-07-22)
+--------------------------
+* bugfix: extracting Bert embeddings on cuda gave error
+* bugfix: traindevtest was only working when models were stored by some other value
+
+Version 0.96.2 (25-07-16)
+--------------------------
+* bugfix: scatter plot for regression problems was not generated any more
+* add category counts to console output
+
+Version 0.96.1 (25-07-16)
+--------------------------
+* bugfix: wrong labels in confmatrix plots
+
+Version 0.96.0 (25-07-14)
+--------------------------
+* added Bert feature extractor
+
+Version 0.95.9 (25-07-14)
+--------------------------
+* added google translation
+
+Version 0.95.8 (25-07-14)
+--------------------------
+* fix bug that bool was not detected as categorical
+
+
 Version 0.95.7 (25-07-11)
 --------------------------
 * infer gender and age from audb misc table

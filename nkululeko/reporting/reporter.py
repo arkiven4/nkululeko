@@ -3,6 +3,7 @@ import glob
 import json
 import math
 import os
+import audplot
 
 # import os
 from confidence_intervals import evaluate_with_conf_int
@@ -198,7 +199,9 @@ class Reporter:
             )
 
     def plot_proba_conf(self):
-        uncertainty_threshold = self.util.config_val("PLOT", "uncertainty_threshold", False)
+        uncertainty_threshold = self.util.config_val(
+            "PLOT", "uncertainty_threshold", False
+        )
         if uncertainty_threshold:
             uncertainty_threshold = float(uncertainty_threshold)
             old_size = self.probas.shape[0]
@@ -210,9 +213,13 @@ class Reporter:
             )
             truths = df["truth"].values
             preds = df["predicted"].values
-            self._plot_confmat(truths, preds, f"uncertainty_less_than_{uncertainty_threshold}_cnf",
-                            epoch=None, test_result=None)
-
+            self._plot_confmat(
+                truths,
+                preds,
+                f"uncertainty_less_than_{uncertainty_threshold}_cnf",
+                epoch=None,
+                test_result=None,
+            )
 
     def set_id(self, run, epoch):
         """Make the report identifiable with run and epoch index."""
@@ -235,9 +242,7 @@ class Reporter:
             epoch (int, optional): Number of epoch. Defaults to None.
         """
         if not self.util.exp_is_classification():
-            self._plot_scatter(
-                self.truths, self.preds, plot_name.replace("cnf", "scatter"), epoch
-            )
+            self._plot_scatter(self.truths, self.preds, f"{plot_name}_scatter", epoch)
             self.continuous_to_categorical()
         self._plot_confmat(self.truths, self.preds, plot_name, epoch)
 
@@ -338,25 +343,16 @@ class Reporter:
             alpha=5,
         )
         acc = accuracy(truths, preds)
-        cm = confusion_matrix(
-            truths, preds, normalize=None
-        )  # normalize must be one of {'true', 'pred', 'all', None}
-        if cm.shape[0] != len(labels):
-            self.util.error(
-                f"mismatch between confmatrix dim ({cm.shape[0]}) and labels"
-                f" length ({len(labels)}: {labels})"
+        #         display_labels=list(labels).remove("neutral"),
+        #     ).plot(cmap="Blues")
+        le = glob_conf.label_encoder
+        if le is not None:
+            label_dict = dict(zip(range(len(le.classes_)), le.classes_))
+            audplot.confusion_matrix(
+                truths, preds, label_aliases=label_dict, show_both=True
             )
-
-        try:
-            disp = ConfusionMatrixDisplay(
-                confusion_matrix=cm, display_labels=labels
-            ).plot(cmap="Blues")
-        except ValueError:
-            disp = ConfusionMatrixDisplay(
-                confusion_matrix=cm,
-                display_labels=list(labels).remove("neutral"),
-            ).plot(cmap="Blues")
-
+        else:
+            audplot.confusion_matrix(truths, preds, show_both=True)
         reg_res = ""
         if not self.is_classification:
             reg_res = f"{test_result.test_result_str()}"
@@ -434,7 +430,10 @@ class Reporter:
             self.util.debug(f"####->{file_name}<-####")
             file_name = f"{res_dir}{file_name}{self.filenameadd}.txt"
         if self.util.exp_is_classification():
-            labels = glob_conf.labels
+            if glob_conf.label_encoder is not None:
+                labels = glob_conf.label_encoder.classes_
+            else:
+                labels = glob_conf.labels
             try:
                 rpt = classification_report(
                     self.truths,
@@ -451,9 +450,7 @@ class Reporter:
                     target_names=s_labels,
                     digits=4,
                 )
-                self.util.debug(
-                    f"\n {class_report_str}"
-                )
+                self.util.debug(f"\n {class_report_str}")
             except ValueError as e:
                 self.util.debug(
                     "Reporter: caught a ValueError when trying to get"
@@ -470,6 +467,8 @@ class Reporter:
                     f"result per class (F1 score): {c_ress} from epoch: {epoch}"
                 )
                 self.util.debug(f1_per_class)
+                # convert all keys to strings
+                rpt = dict((str(key), value) for (key, value) in rpt.items())
                 rpt_str = f"{json.dumps(rpt)}\n{f1_per_class}"
                 # rpt_str += f"\n{auc_auc}"
                 text_file.write(rpt_str)
