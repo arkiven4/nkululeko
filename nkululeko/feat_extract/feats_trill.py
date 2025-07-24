@@ -40,7 +40,7 @@ class TRILLset(Featureset):
             "trill.model",
             "https://tfhub.dev/google/nonsemantic-speech-benchmark/trill/3",
         )
-        # self.model = hub.load(model_path)
+        self.model = hub.load(model_path)
         self.feats_type = feats_type
 
     def extract(self):

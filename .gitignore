@@ -170,3 +170,6 @@ nkululeko-dev/
 
 # agent settings
 AGENT.md
+
+# uv related
+.lock

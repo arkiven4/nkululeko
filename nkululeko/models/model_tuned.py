@@ -42,12 +42,12 @@ class TunedModel(BaseModel):
         self.class_num = len(self.labels)
         device = self.util.config_val("MODEL", "device", False)
         if not device:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+            self.device = torch.device('cuda') if torch.cuda.is_available() else "cpu"
         else:
-            self.device = device
-        if self.device != "cpu":
-            os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-            os.environ["CUDA_VISIBLE_DEVICES"] = self.device
+            self.device = torch.device(device)
+        # if self.device != "cpu":
+        #     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+        #     os.environ["CUDA_VISIBLE_DEVICES"] = self.device
         self.util.debug(f"running on device {self.device}")
         self.is_classifier = self.util.exp_is_classification()
         if self.is_classifier:
@@ -72,6 +72,9 @@ class TunedModel(BaseModel):
         self.push = eval(self.util.config_val("MODEL", "push_to_hub", "False"))
         self.balancing = self.util.config_val("MODEL", "balancing", False)
         self._init_model()
+        print("CUDA Avail")
+        print(torch.cuda.is_available())
+        
 
     def _init_model(self):
         model_path = "facebook/wav2vec2-large-robust-ft-swbd-300h"
@@ -428,7 +431,7 @@ class TunedModel(BaseModel):
             self.util.debug(f"reusing finetuned model: {conf_file}")
             self.load(self.run, self.epoch_num)
             return
-        targets = pd.DataFrame(self.dataset["train"]["targets"])
+        targets = pd.DataFrame({"targets": list(self.dataset["train"]["targets"])}) # Why?
 
         if self.is_classifier:
             criterion = self.util.config_val("MODEL", "loss", "cross")
@@ -526,7 +529,7 @@ class TunedModel(BaseModel):
         )
 
         trainer_kwargs = {
-            "model": self.model,
+            "model": self.model.to('cuda'),
             "data_collator": self.data_collator,
             "args": training_args,
             "compute_metrics": self.compute_metrics,
